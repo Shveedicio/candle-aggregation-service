@@ -12,3 +12,7 @@ spring:
     enabled: true
     user: candle-aggregation-service
     password: candle-aggregation-service
+
+springdoc:
+  swagger-ui:
+    enabled: true

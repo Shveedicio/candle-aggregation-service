@@ -1,0 +1,62 @@
+plugins {
+  id "org.springframework.boot" version "$springBootVersion" apply false
+  id "io.spring.dependency-management" version "$springDependencyManagementVersion"
+  id "org.jetbrains.kotlin.jvm" version "$kotlinVersion" apply false
+  id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion" apply false
+  id "org.jetbrains.kotlin.plugin.jpa" version "$kotlinVersion" apply false
+  id "org.jetbrains.kotlin.kapt" version "$kaptVersion" apply false
+  id "org.openapi.generator" version "$openapiGeneratorVersion" apply false
+  id "com.google.protobuf" version "$protobufPluginVersion" apply false
+  id "org.jlleitschuh.gradle.ktlint" version "$ktlintPluginVersion"
+}
+
+subprojects {
+  apply plugin: "io.spring.dependency-management"
+  apply plugin: "org.jetbrains.kotlin.jvm"
+  apply plugin: "org.jetbrains.kotlin.plugin.spring"
+  apply plugin: "org.jlleitschuh.gradle.ktlint"
+
+  repositories {
+    mavenCentral()
+    maven { url = "https://packages.confluent.io/maven/" }
+  }
+
+  dependencyManagement {
+    imports {
+      mavenBom "org.springdoc:springdoc-openapi:$springDocOpenApiVersion"
+      mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+      mavenBom "org.zalando:logbook-bom:$logbookVersion"
+    }
+
+    dependencies {
+      // OpenApi
+      dependency "org.springdoc:springdoc-openapi-kotlin:$springdocOpenapiKotlinVersion"
+      dependency "io.swagger.core.v3:swagger-core:$swaggerVersion"
+
+      // Persistence
+      dependency "org.liquibase:liquibase-core:$liquibaseVersion"
+
+      // Kafka & Protobuf
+      dependency "io.confluent:kafka-protobuf-serializer:$confluentKafkaProtobuf"
+      dependency "com.google.protobuf:protobuf-kotlin:$protobufVersion"
+
+      // Resilience4j
+      dependency "io.github.resilience4j:resilience4j-spring-boot3:$resilience4jVersion"
+      dependency "io.github.resilience4j:resilience4j-ratelimiter:$resilience4jVersion"
+
+      // Misc
+      dependency "org.mapstruct:mapstruct:$mapstructVersion"
+      dependency "org.mapstruct:mapstruct-processor:$mapstructVersion"
+      dependency "com.jayway.jsonpath:json-path:$jaywayJsonpathVersion"
+
+      dependency "io.zonky.test:embedded-postgres:$embeddedPostgresVersion"
+      dependency "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+    }
+  }
+
+  kotlin {
+    jvmToolchain {
+      languageVersion = JavaLanguageVersion.of("$javaTargetVersion")
+    }
+  }
+}

@@ -1,0 +1,7 @@
+rootProject.name = "candle-aggregation-service"
+
+include("api")
+include("server")
+
+findProject(":api")?.name = "${rootProject.name}-api"
+findProject(":server")?.name = "${rootProject.name}-server"

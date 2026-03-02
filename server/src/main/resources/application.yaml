@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: candle-aggregation-service
+  liquibase:
+    enabled: false
+    change-log: classpath:db.changelog/changelog-master.yaml
+  datasource:
+    hikari: # todo: tune this properties after load testing
+      minimum-idle: 10
+      maximum-pool-size: 64
+      connection-timeout: 5000
+      idle-timeout: 300000
+      max-lifetime: 15000
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        jdbc:
+          time_zone: UTC
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 5000
+    open-in-view: true

@@ -1,14 +1,9 @@
----
-server:
-  port: 8080
-
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/candle-aggregation-service
     username: candle-aggregation-service
     password: candle-aggregation-service
-
   liquibase:
     enabled: true
-    user: candle-aggregation-service
-    password: candle-aggregation-service
+    change-log: db.changelog/db.changelog-master-test.yaml
+

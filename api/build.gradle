@@ -1,0 +1,71 @@
+plugins {
+  id 'application'
+  id 'org.openapi.generator'
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'io.swagger.core.v3:swagger-core'
+  implementation 'org.springframework.data:spring-data-commons'
+}
+
+tasks {
+  openApiGenerate {
+    generatorName = "kotlin-spring"
+    packageName = "multibank.candle.aggregation.api.v1"
+    outputDir = "$projectDir/build/generated-resources"
+    apiPackage = "multibank.candle.aggregation.api.v1"
+    modelPackage = "multibank.candle.aggregation.api.model"
+    inputSpec = "$projectDir/src/main/resources/openapi/history.yaml"
+    globalProperties = [
+        apis  : "History",
+        models: ""
+    ]
+    additionalProperties = [
+        useSpringBoot3         : true,
+        useSpringFox           : false,
+        gradleBuildFile        : false,
+        useSwaggerUI           : false,
+        library                : "spring-boot",
+        interfaceOnly          : true,
+        openApiNullable        : false,
+        exceptionHandler       : false,
+        dateLibrary            : "java8",
+        serializableModel      : "true",
+        serializationLibrary   : "jackson",
+        documentationProvider  : "springdoc",
+        annotationLibrary      : "swagger2",
+        useTags                : true,
+        hideGenerationTimestamp: false,
+        enumPropertyNaming     : "UPPERCASE",
+    ]
+    schemaMappings = [
+        'Pageable': 'org.springframework.data.domain.Pageable'
+    ]
+    importMappings = [
+        'Pageable': 'org.springframework.data.domain.Pageable'
+    ]
+  }
+  sourceSets {
+    main {
+      kotlin {
+        srcDir(files("${openApiGenerate.outputDir.get()}/src/main/kotlin"))
+      }
+    }
+  }
+
+  ktlintMainSourceSetCheck {
+    enabled = false
+  }
+
+  ktlintMainSourceSetFormat {
+    enabled = false
+  }
+}
+
+compileKotlin.dependsOn tasks.openApiGenerate
+
+task cleanAndApiGenerate(group: 'build', description: 'clean') {
+  tasks.findByName('openApiGenerate').mustRunAfter 'clean'
+  tasks.findByName('openApiGenerate').mustRunAfter 'runKtlintCheckOverMainSourceSet'
+}

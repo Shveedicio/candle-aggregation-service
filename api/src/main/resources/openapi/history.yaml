@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: Candle Aggregation Service API
+  version: 1.0.0
+  description: API for retrieving historical OHLCV candle data.
+
+tags:
+  - name: History
+    description: History Controller
+
+paths:
+  /history:
+    get:
+      summary: Get historical OHLCV candles
+      description: |
+        Returns aggregated OHLCV candles for the requested symbol, interval and time range.
+      tags:
+        - History
+      parameters:
+        - name: symbol
+          in: query
+          description: Trading symbol (e.g. BTC-USD).
+          required: true
+          schema:
+            type: string
+            example: BTC-USD
+        - name: interval
+          in: query
+          description: Candle interval.
+          required: true
+          schema:
+            type: string
+            enum: ["1s", "5s", "1m", "5m", "15m", "1h"]
+            example: 1m
+        - name: from
+          in: query
+          description: Start of time range (Unix timestamp in seconds, inclusive).
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1620000000
+        - name: to
+          in: query
+          description: End of time range (Unix timestamp in seconds, exclusive or inclusive depending on implementation).
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1620000600
+      responses:
+        '200':
+          description: Successful response with historical candles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        '400':
+          description: Invalid request parameters.
+        '500':
+          description: Internal server error.
+components:
+  schemas:
+    HistoryResponse:
+      type: object
+      required: [s, t, o, h, l, c, v]
+      properties:
+        s:
+          type: string
+          description: Status of the request.
+          example: ok
+        t:
+          type: array
+          description: Candle open times (Unix timestamps in seconds).
+          items:
+            type: integer
+            format: int64
+          example: [1620000000, 1620000060]
+        o:
+          type: array
+          description: Open prices.
+          items:
+            type: number
+            format: double
+          example: [29500.5, 29501.0]
+        h:
+          type: array
+          description: High prices.
+          items:
+            type: number
+            format: double
+          example: [29510.0, 29505.0]
+        l:
+          type: array
+          description: Low prices.
+          items:
+            type: number
+            format: double
+          example: [29490.0, 29500.0]
+        c:
+          type: array
+          description: Close prices.
+          items:
+            type: number
+            format: double
+          example: [29505.0, 29502.0]
+        v:
+          type: array
+          description: Volumes.
+          items:
+            type: number
+            format: double
+          example: [10, 8]

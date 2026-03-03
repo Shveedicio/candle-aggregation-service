@@ -1,14 +1,15 @@
 package multibank.candle.aggregation.persistence.entity
 
+import java.math.BigDecimal
 import java.time.Instant
 
 data class Candle(
   val symbol: String,
   val interval: CandleInterval,
   val time: Instant,
-  val open: Double,
-  val high: Double,
-  val low: Double,
-  val close: Double,
-  val volume: Long,
+  val open: BigDecimal,
+  val high: BigDecimal,
+  val low: BigDecimal,
+  val close: BigDecimal,
+  val volume: BigDecimal,
 )

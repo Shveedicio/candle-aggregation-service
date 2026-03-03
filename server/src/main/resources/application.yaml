@@ -1,9 +1,11 @@
 spring:
   application:
     name: candle-aggregation-service
+
   liquibase:
     enabled: false
     change-log: classpath:db.changelog/changelog-master.yaml
+
   datasource:
     hikari: # todo: tune this properties after load testing
       minimum-idle: 10
@@ -11,6 +13,7 @@ spring:
       connection-timeout: 5000
       idle-timeout: 300000
       max-lifetime: 15000
+
   jpa:
     properties:
       hibernate:
@@ -23,6 +26,28 @@ spring:
               LOG_QUERIES_SLOWER_THAN_MS: 5000
     open-in-view: true
 
+  kafka:
+    admin:
+      auto-create: true
+    consumer:
+      group-id: candle-aggregation-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
+      auto-offset-reset: earliest
+      properties:
+        allow.auto.create.topics: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+      acks: all
+      retries: 3
+      properties:
+        auto.register.schemas: true
+        use.latest.version: true
+        auto.create.topics.enable: false
+        enable.idempotence: true
+        value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicNameStrategy
+
 springdoc:
   swagger-ui:
     enabled: true
@@ -30,3 +55,20 @@ springdoc:
     url: /openapi/history.yaml
   api-docs:
     enabled: true
+
+system:
+  kafka:
+    default:
+      consumer:
+        candle-data:
+          topic: candle-data
+          partitions: 2
+          properties:
+            specific.protobuf.value.type: multibank.kafka.CandleDataOuterClass$CandleData
+            enable.auto.commit: false
+          topicOffsetMinutes: 3
+      producer:
+        candle-data:
+          topic: candle-data
+          partitions: 2
+          retentionMs: 3600000

@@ -39,12 +39,6 @@ tasks {
         hideGenerationTimestamp: false,
         enumPropertyNaming     : "UPPERCASE",
     ]
-    schemaMappings = [
-        'Pageable': 'org.springframework.data.domain.Pageable'
-    ]
-    importMappings = [
-        'Pageable': 'org.springframework.data.domain.Pageable'
-    ]
   }
   sourceSets {
     main {

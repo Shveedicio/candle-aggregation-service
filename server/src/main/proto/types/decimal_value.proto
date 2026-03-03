@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package multibank.kafka;
+
+message DecimalValue {
+  int64 unscaled_value = 1;
+  int32 scale = 2;
+}

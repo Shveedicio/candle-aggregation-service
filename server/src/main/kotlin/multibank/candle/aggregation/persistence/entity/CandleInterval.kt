@@ -1,11 +1,11 @@
 package multibank.candle.aggregation.persistence.entity
 
-enum class CandleInterval(val seconds: Long) {
-  ONE_MINUTE(60),
-  FIVE_MINUTES(300),
-  FIFTEEN_MINUTES(900),
-  THIRTY_MINUTES(1800),
-  ONE_HOUR(3600),
+enum class CandleInterval(val seconds: Long, val postfix: String) {
+  ONE_MINUTE(60, "1m"),
+  FIVE_MINUTES(300, "5m"),
+  FIFTEEN_MINUTES(900, "15m"),
+  THIRTY_MINUTES(1800, "30m"),
+  ONE_HOUR(3600, "60m"),
   ;
 
   companion object {

@@ -1,7 +1,8 @@
 plugins {
   id 'application'
   id 'org.springframework.boot'
-  id "org.jetbrains.kotlin.kapt"
+  id 'org.jetbrains.kotlin.kapt'
+  id 'com.google.protobuf'
 }
 
 dependencies {
@@ -28,10 +29,12 @@ dependencies {
   implementation 'org.postgresql:postgresql'
   implementation 'org.liquibase:liquibase-core'
 
-  // Feign
-  implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-  implementation 'io.github.openfeign:feign-httpclient'
-  implementation 'io.github.openfeign:feign-micrometer'
+  // Kafka & Protobuf
+  implementation 'org.springframework.kafka:spring-kafka'
+  implementation 'com.google.protobuf:protobuf-kotlin'
+  implementation 'io.confluent:kafka-protobuf-serializer'
+  implementation 'io.confluent:kafka-schema-serializer'
+  implementation 'io.confluent:kafka-schema-registry-client'
 
   // Logging
   implementation 'org.zalando:logbook-spring-boot-starter'
@@ -61,6 +64,23 @@ dependencies {
   testImplementation 'org.mockito:mockito-core:3.12.4'
   testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
 }
+
+protobuf {
+  protoc {
+    artifact = "com.google.protobuf:protoc:$protobufVersion"
+  }
+
+  generateProtoTasks {
+    all().forEach {
+      it.builtins {
+        create("kotlin")
+      }
+    }
+  }
+}
+
+compileJava.dependsOn tasks.generateProto
+compileTestJava.dependsOn tasks.generateProto
 
 tasks {
   test {

@@ -81,33 +81,28 @@ components:
           description: Open prices.
           items:
             type: number
-            format: double
           example: [29500.5, 29501.0]
         h:
           type: array
           description: High prices.
           items:
             type: number
-            format: double
           example: [29510.0, 29505.0]
         l:
           type: array
           description: Low prices.
           items:
             type: number
-            format: double
           example: [29490.0, 29500.0]
         c:
           type: array
           description: Close prices.
           items:
             type: number
-            format: double
           example: [29505.0, 29502.0]
         v:
           type: array
           description: Volumes.
           items:
             type: number
-            format: double
           example: [10, 8]

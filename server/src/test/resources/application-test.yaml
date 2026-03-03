@@ -7,3 +7,8 @@ spring:
     enabled: true
     change-log: db.changelog/db.changelog-master-test.yaml
 
+  kafka:
+    consumer:
+      properties:
+        schema.registry.url: test
+

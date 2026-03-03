@@ -37,11 +37,19 @@ Using kafka allows to scale services that collect and provide data from differen
 
 `system.kafka.default.consumer.candle-data.topicOffsetMinutes` - where to move the offset before starting to read data after application restarts
 
+### 5. Web socket (candle ingestion)
+`BybitConnectionManager` is an entrypoint for candle upstream. We subscribe to Bybit SPOT market. Each consumed candle forwards to `candle-data` kafka topic and becomes part of persistence.
+I also described back-pressure behaviour inside `CandlesGapRecoveryService#recover`, but skipped the implementation not to exceed functional requirements. This method executes when before a websocket connection has established to fill the gap with candles that were not loaded due to application restart or unavailability.
+
 ### 5. Tests
 
-Test classes are split into different layers: mock-testing using `Mockito` for service layer and integrational testing using `TestContainers` on service-layer
+Test classes are split into different layers: mock-testing using `Mockito` for service layer and integrational testing using `TestContainers` on service-layer.
 
 ### 5. Notes and Improvements
 1. Use `MockMvc` for controller-layer testing
-2. OnStartUp uploading service. Responsible for uploading candles that were missed during application restart/unavailability.
+2. OnStartUp uploading service `CandlesGapRecoveryService`. Responsible for uploading candles that were missed during application restart/unavailability.
 3. Candle background aggregation leads to small lag, which is related to delayed candles that usually appear with high market volatility.
+4. Collecting, saving and aggregating candles seem to be different responsibilities. At least, I recommend not to use only one service for these purposes.
+   1.1. Firstly, much better design approach would be to stand out a collector service, which would be responsible for consuming websocket data and delivering it to kafka.
+   1.2. Secondly, separated consumer service should be writing this data to timescale-db. It will decrease CPU and RAM consumption in favor of db connections
+   1.3. And the third microservice has to be responsible for data aggregation on API level by accessing DB in a read-only mode. It will spread database activity by two services and avoid our service to be overloaded by sql queries.

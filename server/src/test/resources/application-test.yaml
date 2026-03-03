@@ -11,4 +11,7 @@ spring:
     consumer:
       properties:
         schema.registry.url: test
+    producer:
+      properties:
+        schema.registry.url: test
 

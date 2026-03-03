@@ -16,18 +16,19 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
 
     val sql = """
             INSERT INTO candle
-            (source, symbol, open, high, low, close, start_time, timestamp)
-            VALUES (:source, :symbol, :open, :high, :low, :close, :start_time, :timestamp)
+            (source, symbol, open, high, low, close, volume, start_time, timestamp)
+            VALUES (:source, :symbol, :open, :high, :low, :close, :volume, :start_time, :timestamp)
     """.trimIndent()
 
     val batch = candles.map {
       mapOf(
-        "source" to "aggregation-service",
+        "source" to "BYBIT",
         "symbol" to it.symbol,
         "open" to it.open,
         "high" to it.high,
         "low" to it.low,
         "close" to it.close,
+        "volume" to it.volume,
         "start_time" to Timestamp.from(it.time),
         "timestamp" to Timestamp.from(it.time),
       )
@@ -40,13 +41,13 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
     val table = tableName(interval)
 
     val sql = """
-            SELECT symbol AS symbol,
+            SELECT symbol,
                    start_time AS time,
                    open,
                    high,
                    low,
                    close,
-                   0 AS volume
+                   volume
             FROM $table
             WHERE symbol = :symbol
               AND start_time BETWEEN :from AND :to

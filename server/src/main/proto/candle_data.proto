@@ -4,12 +4,12 @@ import "types/decimal_value.proto";
 package multibank.kafka;
 
 message CandleData {
-  string base = 1;
-  string quote = 2;
-  DecimalValue open = 3;
-  DecimalValue high = 4;
-  DecimalValue low = 5;
-  DecimalValue close = 6;
+  string symbol = 1;
+  DecimalValue open = 2;
+  DecimalValue high = 3;
+  DecimalValue low = 4;
+  DecimalValue close = 5;
+  DecimalValue volume = 6;
   int64 startTime = 7;
   int64 timestamp = 8;
 }

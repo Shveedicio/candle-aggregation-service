@@ -9,6 +9,7 @@ create table if not exists candle
     high       decimal   not null,
     low        decimal   not null,
     close      decimal   not null,
+    volume      decimal   not null,
     start_time timestamp not null,
     timestamp  timestamp not null
 );

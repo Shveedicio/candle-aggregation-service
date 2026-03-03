@@ -43,6 +43,9 @@ subprojects {
       // Persistence
       dependency "org.liquibase:liquibase-core:$liquibaseVersion"
 
+      // Logging
+      dependency "io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion"
+
       dependency "io.zonky.test:embedded-postgres:$embeddedPostgresVersion"
       dependency "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     }

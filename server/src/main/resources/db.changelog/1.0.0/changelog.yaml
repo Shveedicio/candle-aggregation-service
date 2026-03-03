@@ -1,7 +1,10 @@
 databaseChangeLog:
   - include:
       relativeToChangelogFile: true
-      file: candles.sql
+      file: candle.sql
+  - include:
+      relativeToChangelogFile: true
+      file: candle_info.sql
   - changeSet:
       id: 1.0.0
       author: Shveedicio

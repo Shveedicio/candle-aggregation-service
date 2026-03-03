@@ -76,14 +76,17 @@ class CandlesServiceTest {
     fun `getHistory maps interval to correct CandleInterval`() {
         whenever(candleRepository.findRange(any(), any(), any(), any())).thenReturn(emptyList())
 
-        candlesService.getHistory("BTC-USD", "1s", 0L, 1L)
-        verify(candleRepository).findRange(any(), eq(CandleInterval.ONE_SECOND), any(), any())
+    candlesService.getHistory("BTC-USD", "1m", 0L, 1L)
+    verify(candleRepository).findRange(any(), eq(CandleInterval.ONE_MINUTE), any(), any())
 
-        candlesService.getHistory("BTC-USD", "5s", 0L, 1L)
-        verify(candleRepository).findRange(any(), eq(CandleInterval.FIVE_SECONDS), any(), any())
+        candlesService.getHistory("BTC-USD", "5m", 0L, 1L)
+    verify(candleRepository).findRange(any(), eq(CandleInterval.FIVE_MINUTES), any(), any())
 
         candlesService.getHistory("BTC-USD", "15m", 0L, 1L)
         verify(candleRepository).findRange(any(), eq(CandleInterval.FIFTEEN_MINUTES), any(), any())
+
+    candlesService.getHistory("BTC-USD", "30m", 0L, 1L)
+    verify(candleRepository).findRange(any(), eq(CandleInterval.THIRTY_MINUTES), any(), any())
 
         candlesService.getHistory("BTC-USD", "1h", 0L, 1L)
         verify(candleRepository).findRange(any(), eq(CandleInterval.ONE_HOUR), any(), any())

@@ -8,16 +8,17 @@
 ### 1. Persistence
 
 **TimescaleDB layout**
-The database is split into **hypertables** by timeframe: `1s`, `5s`, `1m`, `5m`, `15m`, `1h`.
+The database is split into **hypertables** by timeframe: `1m`, `5m`, `15m`, `30m`, `1h`.
 Each table has a primary key on `(symbol, time)` and an index on `(symbol, time desc)` to efficiently fetch the latest candles.
 
 Chunk sizes and retention policies are chosen so that the number of rows per chunk (for a single symbol) is roughly comparable:
-- **1s** – 1 day chunk (86400 records per 24 hours per symbol)
-- **5s** – 3 days chunk (86400 / 5 * 3)
-- **1m** – 7 days chunk
-- **5m** – 14 days chunk
-- **15m** – 30 days chunk
+- **1m** – 1 day chunk (86400 records per 24 hours per symbol)
+- **5m** – 3 days chunk (86400 / 5 * 3)
+- **15m** – 7 days chunk
+- **30m** – 14 days chunk
 - **1h** – 90 days chunk
+
+Aggregation works with scheduling by add_continuous_aggregate_policy. End border excludes current interval to avoid multiple aggregations.
 
 ### 2. Data layer
 
@@ -38,6 +39,7 @@ API interfaces and models are generated from the OpenAPI YAML specification (`ap
 - Test classes are split into different layers: mock-testing using `Mockito` for service layer and integrational testing using `TestContainers` on service-layer
 
 ### 5. Remarks & hacks
+1. Candle background aggregation leads to small lag, which is related to delayed candles that usually appear with high market volatility.
 
 ### 6. ToDo's and Improvements
 1. Use `MockMvc` for controller-layer testing

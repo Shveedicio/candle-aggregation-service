@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 class JdbcCandleRepositoryTest : DataTestProfile() {
-	private val interval = CandleInterval.ONE_SECOND
+	private val interval = CandleInterval.ONE_MINUTE
 
 	@Test
-	fun `saveBatch should insert and update candles`() {
+	fun `saveBatch should insert candles`() {
 		val t1 = Instant.parse("2024-01-01T00:00:00Z")
-		val t2 = Instant.parse("2024-01-01T00:00:01Z")
+		val t2 = Instant.parse("2024-01-01T00:01:00Z")
 
 		val candles = listOf(
 			Candle("BTCUSDT", interval, t1, 10.0, 11.0, 9.0, 10.5, 100),
@@ -23,22 +23,16 @@ class JdbcCandleRepositoryTest : DataTestProfile() {
 
 		repository.saveBatch(interval, candles)
 
-		// update same times with new data
-		val updated = listOf(
-			Candle("BTCUSDT", interval, t1, 20.0, 21.0, 19.0, 20.5, 300),
-			Candle("BTCUSDT", interval, t2, 21.0, 22.0, 20.5, 21.5, 400),
-		)
-
-		repository.saveBatch(interval, updated)
-
 		val rows = jdbcTemplate.queryForList(
-			"SELECT symbol, time, open, high, low, close, volume FROM candles_1s ORDER BY time",
+			"SELECT source, symbol, open, high, low, close, start_time, timestamp FROM candle ORDER BY start_time",
 			emptyMap<String, Any>(),
 		)
 
 		assertEquals(2, rows.size)
-		assertEquals(20.0, (rows[0]["open"] as Number).toDouble())
-		assertEquals(21.5, (rows[1]["close"] as Number).toDouble())
+
+		assertEquals(10.0, (rows[0]["open"] as Number).toDouble())
+		assertEquals(11.0, (rows[1]["open"] as Number).toDouble())
+
 	}
 
 	@Test
@@ -48,7 +42,7 @@ class JdbcCandleRepositoryTest : DataTestProfile() {
 			Candle(
 				symbol = "ETHUSDT",
 				interval = interval,
-				time = base.plusSeconds(offset),
+				time = base.plusSeconds(60 * offset),
 				open = 100.0 + offset,
 				high = 101.0 + offset,
 				low = 99.0 + offset,
@@ -62,13 +56,13 @@ class JdbcCandleRepositoryTest : DataTestProfile() {
 		val result = repository.findRange(
 			symbol = "ETHUSDT",
 			interval = interval,
-			from = base.plusSeconds(1),
-			to = base.plusSeconds(3),
+			from = base.plusSeconds(60),
+			to = base.plusSeconds(3 * 60),
 		)
 
 		assertEquals(3, result.size)
-		assertEquals(base.plusSeconds(1), result.first().time)
-		assertEquals(base.plusSeconds(3), result.last().time)
+		assertEquals(base.plusSeconds(60), result.first().time)
+		assertEquals(base.plusSeconds(180), result.last().time)
 	}
 
 	@Test
@@ -76,7 +70,7 @@ class JdbcCandleRepositoryTest : DataTestProfile() {
 		assertNull(repository.findLast("DOGEUSDT", interval))
 
 		val t1 = Instant.parse("2024-01-01T00:00:00Z")
-		val t2 = Instant.parse("2024-01-01T00:00:02Z")
+		val t2 = Instant.parse("2024-01-01T00:02:00Z")
 
 		repository.saveBatch(
 			interval,

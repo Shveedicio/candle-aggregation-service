@@ -20,14 +20,14 @@ class CandleIngestionService(private val candleRepository: CandleRepository) {
 
     val candles = messages.map { message ->
       Candle(
-        symbol = message.base + message.quote,
+        symbol = message.symbol,
         interval = interval,
         time = Instant.ofEpochMilli(message.startTime),
         open = message.open.toBigDecimal(),
         high = message.high.toBigDecimal(),
         low = message.low.toBigDecimal(),
         close = message.close.toBigDecimal(),
-        volume = BigDecimal.ZERO,
+        volume = message.volume.toBigDecimal(),
       )
     }
 

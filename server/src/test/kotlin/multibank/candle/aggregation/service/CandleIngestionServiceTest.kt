@@ -49,8 +49,11 @@ class CandleIngestionServiceTest: IntegrationalTestProfile() {
 				scale = 3
 				unscaledValue = 12_300L
 			})
-			.setBase("BTC")
-			.setQuote("USDT")
+			.setVolume(decimalValue {
+				scale = 3
+				unscaledValue = 50000L
+			})
+			.setSymbol("BTCUSDT")
 			.setStartTime(startTime)
 			.build()
 

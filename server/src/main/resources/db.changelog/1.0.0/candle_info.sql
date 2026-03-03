@@ -45,11 +45,12 @@ DO $$
                 FIRST(open, %I) AS open,
                 MAX(high) AS high,
                 MIN(low) AS low,
-                LAST(close, %I) AS close
+                LAST(close, %I) AS close,
+                LAST(volume, %I) as volume
             FROM %I
             GROUP BY 1, 2, 3
             WITH NO DATA;
-        ', view_name, deactivate_realtime[i], buckets[i], time_agg_column, time_agg_column, source_name);
+        ', view_name, deactivate_realtime[i], buckets[i], time_agg_column, time_agg_column, time_agg_column, source_name);
 
                 -- index to optimize source + symbol lookups
                 EXECUTE format('create index if not exists %I ON %I(symbol, source, start_time) INCLUDE (low, high);', index_name, view_name);

@@ -22,7 +22,7 @@ class CandlesServiceTest {
 
 	@Test
 	fun `getHistory returns HistoryResponse with candles from repository`() {
-		val symbol = "BTC-USD"
+		val symbol = "BTCUSDT"
 		val interval = "1m"
 		val from = 1620000000L
 		val to = 1620000060L
@@ -61,7 +61,7 @@ class CandlesServiceTest {
 
 		val result = candlesService.getHistory(symbol, interval, from, to)
 
-		assertEquals("ok", result.s)
+		assertEquals(symbol, result.s)
 		assertEquals(listOf(1620000000L, 1620000060L), result.t)
 		assertEquals(listOf(29500.5.toBigDecimal(), 29501.toBigDecimal()), result.o)
 		assertEquals(listOf(29510.toBigDecimal(), 29505.toBigDecimal()), result.h)
@@ -81,9 +81,9 @@ class CandlesServiceTest {
 	fun `getHistory returns empty arrays when repository returns empty list`() {
 		whenever(candleRepository.findRange(any(), any(), any(), any())).thenReturn(emptyList())
 
-		val result = candlesService.getHistory("ETH-USD", "5m", 1620000000L, 1620000300L)
+		val result = candlesService.getHistory("ETHUSDT", "5m", 1620000000L, 1620000300L)
 
-		assertEquals("ok", result.s)
+		assertEquals("ETHUSDT", result.s)
 		assertEquals(emptyList<Long>(), result.t)
 		assertEquals(emptyList<BigDecimal>(), result.o)
 		assertEquals(emptyList<BigDecimal>(), result.h)

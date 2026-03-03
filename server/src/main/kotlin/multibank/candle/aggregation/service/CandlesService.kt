@@ -17,7 +17,7 @@ class CandlesService(private val candleRepository: CandleRepository) {
     val candles = candleRepository.findRange(symbol, candleInterval, fromInstant, toInstant)
 
     return HistoryResponse(
-      s = "ok",
+      s = symbol,
       t = candles.map { it.time.epochSecond },
       o = candles.map { it.open },
       h = candles.map { it.high },

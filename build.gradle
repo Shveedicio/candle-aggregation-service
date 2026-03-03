@@ -5,6 +5,7 @@ plugins {
   id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion" apply false
   id "org.jetbrains.kotlin.kapt" version "$kaptVersion" apply false
   id "org.openapi.generator" version "$openapiGeneratorVersion" apply false
+  id "com.google.protobuf" version "$protobufPluginVersion" apply false
   id "org.jlleitschuh.gradle.ktlint" version "$ktlintPluginVersion"
 }
 
@@ -27,6 +28,14 @@ subprojects {
     }
 
     dependencies {
+      // Kafka & Protobuf
+      dependencySet(group: 'io.confluent', version: confluentKafkaProtobuf) {
+        entry 'kafka-protobuf-serializer'
+        entry 'kafka-schema-serializer'
+        entry 'kafka-schema-registry-client'
+      }
+      dependency "com.google.protobuf:protobuf-kotlin:$protobufVersion"
+
       // OpenApi
       dependency "org.springdoc:springdoc-openapi-kotlin:$springdocOpenapiKotlinVersion"
       dependency "io.swagger.core.v3:swagger-core:$swaggerVersion"

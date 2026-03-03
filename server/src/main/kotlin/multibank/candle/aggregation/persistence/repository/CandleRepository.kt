@@ -6,7 +6,7 @@ import java.time.Instant
 
 interface CandleRepository {
 
-  fun saveBatch(interval: CandleInterval, candles: List<Candle>)
+  fun saveBatch(candles: List<Candle>)
 
   fun findRange(symbol: String, interval: CandleInterval, from: Instant, to: Instant): List<Candle>
 

@@ -11,7 +11,7 @@ import java.time.Instant
 @Repository
 class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : CandleRepository {
 
-  override fun saveBatch(interval: CandleInterval, candles: List<Candle>) {
+  override fun saveBatch(candles: List<Candle>) {
     if (candles.isEmpty()) return
 
     val sql = """
@@ -64,11 +64,11 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
         symbol = rs.getString("symbol"),
         interval = interval,
         time = rs.getTimestamp("time").toInstant(),
-        open = rs.getDouble("open"),
-        high = rs.getDouble("high"),
-        low = rs.getDouble("low"),
-        close = rs.getDouble("close"),
-        volume = rs.getLong("volume"),
+        open = rs.getBigDecimal("open"),
+        high = rs.getBigDecimal("high"),
+        low = rs.getBigDecimal("low"),
+        close = rs.getBigDecimal("close"),
+        volume = rs.getBigDecimal("volume"),
       )
     }
   }
@@ -97,29 +97,14 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
         symbol = rs.getString("symbol"),
         interval = interval,
         time = rs.getTimestamp("time").toInstant(),
-        open = rs.getDouble("open"),
-        high = rs.getDouble("high"),
-        low = rs.getDouble("low"),
-        close = rs.getDouble("close"),
-        volume = rs.getLong("volume"),
+        open = rs.getBigDecimal("open"),
+        high = rs.getBigDecimal("high"),
+        low = rs.getBigDecimal("low"),
+        close = rs.getBigDecimal("close"),
+        volume = rs.getBigDecimal("volume"),
       )
     }.firstOrNull()
   }
 
-  private fun tableName(interval: CandleInterval): String = when (interval) {
-    CandleInterval.ONE_MINUTE ->
-      "candle_info_1m"
-
-    CandleInterval.FIVE_MINUTES ->
-      "candle_info_5m"
-
-    CandleInterval.FIFTEEN_MINUTES ->
-      "candle_info_15m"
-
-    CandleInterval.THIRTY_MINUTES ->
-      "candle_info_30m"
-
-    CandleInterval.ONE_HOUR ->
-      "candle_info_1h"
-  }
+  private fun tableName(interval: CandleInterval): String = "candle_info_${interval.postfix}"
 }

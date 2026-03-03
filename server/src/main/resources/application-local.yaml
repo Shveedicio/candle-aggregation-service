@@ -13,6 +13,15 @@ spring:
     user: candle-aggregation-service
     password: candle-aggregation-service
 
+  kafka:
+    bootstrap-servers: localhost:9092, localhost:9093
+    producer:
+      properties:
+        schema.registry.url: http://localhost:8081
+    consumer:
+      properties:
+        schema.registry.url: http://localhost:8081
+
 springdoc:
   swagger-ui:
     enabled: true

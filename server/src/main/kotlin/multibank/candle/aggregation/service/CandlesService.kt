@@ -23,7 +23,7 @@ class CandlesService(private val candleRepository: CandleRepository) {
       h = candles.map { it.high },
       l = candles.map { it.low },
       c = candles.map { it.close },
-      v = candles.map { it.volume.toDouble() },
+      v = candles.map { it.volume },
     )
   }
 }

@@ -14,30 +14,22 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
   override fun saveBatch(interval: CandleInterval, candles: List<Candle>) {
     if (candles.isEmpty()) return
 
-    val table = tableName(interval)
-
     val sql = """
-            INSERT INTO $table
-            (symbol, time, open, high, low, close, volume)
-            VALUES (:symbol, :time, :open, :high, :low, :close, :volume)
-            ON CONFLICT (symbol, time)
-            DO UPDATE SET
-                open = EXCLUDED.open,
-                high = EXCLUDED.high,
-                low = EXCLUDED.low,
-                close = EXCLUDED.close,
-                volume = EXCLUDED.volume
+            INSERT INTO candle
+            (source, symbol, open, high, low, close, start_time, timestamp)
+            VALUES (:source, :symbol, :open, :high, :low, :close, :start_time, :timestamp)
     """.trimIndent()
 
     val batch = candles.map {
       mapOf(
+        "source" to "aggregation-service",
         "symbol" to it.symbol,
-        "time" to Timestamp.from(it.time),
         "open" to it.open,
         "high" to it.high,
         "low" to it.low,
         "close" to it.close,
-        "volume" to it.volume,
+        "start_time" to Timestamp.from(it.time),
+        "timestamp" to Timestamp.from(it.time),
       )
     }.toTypedArray()
 
@@ -48,11 +40,17 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
     val table = tableName(interval)
 
     val sql = """
-            SELECT symbol, time, open, high, low, close, volume
+            SELECT symbol AS symbol,
+                   start_time AS time,
+                   open,
+                   high,
+                   low,
+                   close,
+                   0 AS volume
             FROM $table
             WHERE symbol = :symbol
-              AND time BETWEEN :from AND :to
-            ORDER BY time ASC
+              AND start_time BETWEEN :from AND :to
+            ORDER BY start_time ASC
     """.trimIndent()
 
     val params = mapOf(
@@ -79,10 +77,16 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
     val table = tableName(interval)
 
     val sql = """
-            SELECT symbol, time, open, high, low, close, volume
+            SELECT symbol AS symbol,
+                   start_time AS time,
+                   open,
+                   high,
+                   low,
+                   close,
+                   0 AS volume
             FROM $table
             WHERE symbol = :symbol
-            ORDER BY time DESC
+            ORDER BY start_time DESC
             LIMIT 1
     """.trimIndent()
 
@@ -103,11 +107,19 @@ class JdbcCandleRepository(private val jdbc: NamedParameterJdbcTemplate) : Candl
   }
 
   private fun tableName(interval: CandleInterval): String = when (interval) {
-    CandleInterval.ONE_SECOND -> "candles_1s"
-    CandleInterval.FIVE_SECONDS -> "candles_5s"
-    CandleInterval.ONE_MINUTE -> "candles_1m"
-    CandleInterval.FIVE_MINUTES -> "candles_5m"
-    CandleInterval.FIFTEEN_MINUTES -> "candles_15m"
-    CandleInterval.ONE_HOUR -> "candles_1h"
+    CandleInterval.ONE_MINUTE ->
+      "candle_info_1m"
+
+    CandleInterval.FIVE_MINUTES ->
+      "candle_info_5m"
+
+    CandleInterval.FIFTEEN_MINUTES ->
+      "candle_info_15m"
+
+    CandleInterval.THIRTY_MINUTES ->
+      "candle_info_30m"
+
+    CandleInterval.ONE_HOUR ->
+      "candle_info_1h"
   }
 }

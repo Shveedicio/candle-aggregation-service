@@ -39,7 +39,9 @@ Using kafka allows to scale services that collect and provide data from differen
 
 ### 5. Web socket (candle ingestion)
 `BybitConnectionManager` is an entrypoint for candle upstream. We subscribe to Bybit SPOT market. Each consumed candle forwards to `candle-data` kafka topic and becomes part of persistence.
-I also described back-pressure behaviour inside `CandlesGapRecoveryService#recover`, but skipped the implementation not to exceed functional requirements. This method executes when before a websocket connection has established to fill the gap with candles that were not loaded due to application restart or unavailability.
+I also described back-pressure behavior inside `CandlesGapRecoveryService#recover`, but skipped the implementation not to exceed functional requirements. This method executes when before a websocket connection has established to fill the gap with candles that were not loaded due to application restart or unavailability.
+
+`SubscriptionManager` is responsible for multiple symbol subscription management. List of symbols is configurable by property `system.websockets.symbols`.
 
 ### 5. Tests
 
@@ -53,3 +55,7 @@ Test classes are split into different layers: mock-testing using `Mockito` for s
    1.1. Firstly, much better design approach would be to stand out a collector service, which would be responsible for consuming websocket data and delivering it to kafka.
    1.2. Secondly, separated consumer service should be writing this data to timescale-db. It will decrease CPU and RAM consumption in favor of db connections
    1.3. And the third microservice has to be responsible for data aggregation on API level by accessing DB in a read-only mode. It will spread database activity by two services and avoid our service to be overloaded by sql queries.
+5. JDBC batch inserts should have limitation to prevent long-running execution
+6. Using large amount of symbols in `system.websockets.symbols` (~> 100) may cause some CPU overloads. **Webstream sharding** with **horizontal scaling** will decrease the CPU usage.
+7. Use `EmbeddedKafka` for integrational tests
+8. Scheduling websocket connection should be implemented with persistence so it could be more scalable.

@@ -3,7 +3,7 @@ package multibank.candle.aggregation.properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "system")
-class SystemProperties(var kafka: Map<String, Cluster>) {
+class SystemProperties(var kafka: Map<String, Cluster>, val websockets: WebsocketsBlock) {
   data class Cluster(val consumer: Map<String, NodeConfig>, val producer: Map<String, NodeConfig>) {
 
     open class Common(
@@ -28,6 +28,8 @@ class SystemProperties(var kafka: Map<String, Cluster>) {
       topicOffsetMinutes,
     )
   }
+
+  data class WebsocketsBlock(val symbols: List<String>)
 
   companion object {
     const val CANDLE_DATA_TOPIC = "candle-data"

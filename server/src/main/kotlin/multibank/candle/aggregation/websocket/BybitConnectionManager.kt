@@ -3,6 +3,7 @@ package multibank.candle.aggregation.websocket
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import multibank.candle.aggregation.kafka.producer.CandleDataProducer
+import multibank.candle.aggregation.properties.SystemProperties
 import multibank.candle.aggregation.service.CandlesGapRecoveryService
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
@@ -17,6 +18,8 @@ class BybitConnectionManager(
   private val objectMapper: ObjectMapper,
   private val candleDataProducer: CandleDataProducer,
   private val candlesGapRecoveryService: CandlesGapRecoveryService,
+  private val subscriptionManager: SubscriptionManager,
+  private val systemProperties: SystemProperties,
 ) {
   private val client = StandardWebSocketClient()
   private val uri = "wss://stream.bybit.com/v5/public/spot"
@@ -26,6 +29,8 @@ class BybitConnectionManager(
   private val state = AtomicReference(ConnectionState.DISCONNECTED)
 
   private var backoffSeconds = 1L
+
+  private val interval = "1"
 
   fun start() {
     connect()
@@ -38,14 +43,19 @@ class BybitConnectionManager(
       onConnected = { onConnected() },
       onDisconnected = { scheduleReconnect() },
       producer = candleDataProducer,
+      subscriptionManager = subscriptionManager,
     )
+
+    systemProperties.websockets.symbols.forEach {
+      subscriptionManager.add(it, interval)
+    }
 
     log.info { "Connecting to Bybit..." }
 
     client.execute(handler, uri)
       .whenComplete { _, throwable ->
         if (throwable != null) {
-          log.info { "Handshake failed: ${throwable.message}" }
+          log.error(throwable) { "Handshake failed: ${throwable.message}" }
           scheduleReconnect()
         }
       }

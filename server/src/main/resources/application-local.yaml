@@ -25,3 +25,9 @@ spring:
 springdoc:
   swagger-ui:
     enabled: true
+
+system:
+  websockets:
+    symbols:
+      - BTCUSDT
+      - ETHUSDT

@@ -22,19 +22,25 @@ class BybitWebSocketHandler(
   private val onConnected: () -> Unit,
   private val onDisconnected: () -> Unit,
   private val producer: CandleDataProducer,
+  private val subscriptionManager: SubscriptionManager,
 ) : TextWebSocketHandler() {
 
   override fun afterConnectionEstablished(session: WebSocketSession) {
     log.info { "WebSocket connected" }
 
-    val subscribe = """
-            {
-              "op": "subscribe",
-              "args": ["kline.1.BTCUSDT"]
-            }
-    """.trimIndent()
+    val args = subscriptionManager.all()
 
-    session.sendMessage(TextMessage(subscribe))
+    if (args.isEmpty()) return
+
+    val subscribe = mapOf(
+      "op" to "subscribe",
+      "args" to args,
+    )
+
+    session.sendMessage(
+      TextMessage(objectMapper.writeValueAsString(subscribe)),
+    )
+
     onConnected()
   }
 

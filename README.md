@@ -39,7 +39,7 @@ Using kafka allows to scale services that collect and provide data from differen
 
 ### 5. Web socket (candle ingestion)
 `BybitConnectionManager` is an entrypoint for candle upstream. We subscribe to Bybit SPOT market. Each consumed candle forwards to `candle-data` kafka topic and becomes part of persistence.
-I also described back-pressure behavior inside `CandlesGapRecoveryService#recover`, but skipped the implementation not to exceed functional requirements. This method executes when before a websocket connection has established to fill the gap with candles that were not loaded due to application restart or unavailability.
+I also described back-pressure behavior inside `CandlesGapRecoveryService#recover`, but skipped the implementation not to exceed functional requirements. This method has to be executed before a websocket connection was established to fill the gap with candles that were not loaded due to application restart or unavailability.
 
 `SubscriptionManager` is responsible for multiple symbol subscription management. List of symbols is configurable by property `system.websockets.symbols`.
 
@@ -48,6 +48,8 @@ I also described back-pressure behavior inside `CandlesGapRecoveryService#recove
 Test classes are split into different layers: mock-testing using `Mockito` for service layer and integrational testing using `TestContainers` on service-layer.
 
 ### 5. Notes and Improvements
+There might be some small mistakes that I haven't checked yet. I also skipped a few tests to keep the pace, so I mentioned some notes here that I would apply in a production code:
+
 1. Use `MockMvc` for controller-layer testing
 2. OnStartUp uploading service `CandlesGapRecoveryService`. Responsible for uploading candles that were missed during application restart/unavailability.
 3. Candle background aggregation leads to small lag, which is related to delayed candles that usually appear with high market volatility.
@@ -58,4 +60,4 @@ Test classes are split into different layers: mock-testing using `Mockito` for s
 5. JDBC batch inserts should have limitation to prevent long-running execution
 6. Using large amount of symbols in `system.websockets.symbols` (~> 100) may cause some CPU overloads. **Webstream sharding** with **horizontal scaling** will decrease the CPU usage.
 7. Use `EmbeddedKafka` for integrational tests
-8. Scheduling websocket connection should be implemented with persistence so it could be more scalable.
+8. Scheduling websocket connection should be implemented with persistence so it could be more scalable. Quartz jobs could be a nice substitution for Executors.
